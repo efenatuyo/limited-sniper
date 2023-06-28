@@ -111,9 +111,10 @@ class sniper:
                 except Exception as e:
                     self.errorLogs.append(f"[{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}] {e}")
                 finally:
-                    os.system(self.clear)
                     self.totalSearches += 1
+                    os.system(self.clear)
                     print("Total Searches: " + repr(self.totalSearches) + "\n\nSearch Logs:\n" + '\n'.join(log for log in self.searchLogs[-3:]) + f"\n\nBuy Logs:\nTotal Items bought: {len(self.buyLogs)}\n" + '\n'.join(log for log in self.buyLogs[-5:]) + "\n\nError Logs:\n" + '\n'.join(log for log in self.errorLogs[-5:]))
+                    cycler = cycle(list(self.items['list'].keys()))
                     await asyncio.sleep(1)
   
 asyncio.run(sniper().search())
