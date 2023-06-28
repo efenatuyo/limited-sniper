@@ -1,4 +1,5 @@
 import aiohttp, asyncio, json, os, time, uuid
+from itertools import islice, cycle
 
 class sniper:
     def __init__(self):
@@ -65,11 +66,13 @@ class sniper:
              
     
     async def search(self):
+        cycler = cycle(list(self.items['list'].keys()))
         async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit=None), timeout=aiohttp.ClientTimeout(total=None)) as session: 
             while True:
                 try:
+                    items = {k: self.items['list'][k] for k in islice(cycler, 120)}
                     async with session.post("https://catalog.roblox.com/v1/catalog/items/details",
-                                           json={"items": [{"itemType": "Asset", "id": id} for id in self.items['list']]},
+                                           json={"items": [{"itemType": "Asset", "id": id} for id in items]},
                                            headers={"x-csrf-token": self.account['xcsrf_token'], 'Accept-Encoding': 'gzip'},
                                            cookies={".ROBLOSECURITY": self.account['cookie']}, ssl=False) as response:
                         if response.status == 200:
