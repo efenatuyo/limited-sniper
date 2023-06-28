@@ -96,18 +96,19 @@ class sniper:
                                                             headers={"x-csrf-token": self.account['xcsrf_token'], 'Accept': "application/json", 'Accept-Encoding': 'gzip'},
                                                             cookies={".ROBLOSECURITY": self.account['cookie']}, ssl=False) as resell:
                                     resell_user = (await resell.json())["data"][0]
+                                    info['price'] = resell_user['price']
                                     info["productid_data"] = resell_user["collectibleProductId"]
                                     info["creator"] = resell_user["seller"]["sellerId"]
                                     info["collectibleItemInstanceId"] = resell_user["collectibleItemInstanceId"]
                                 await self.buy_item(session, info)
-                                
+                        elif response.status == 429:
+                            self.errorLogs.append(f"[{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}] Ratelimit hit")
+                            await asyncio.sleep(5)
                         elif response.status == 403:
                             if (await response.json())['message'] == "Token Validation Failed":
                                 self.account['xcsrf_token'] = await self._get_xcsrf_token(self.account['cookie'])
                                 continue
-                        elif response.status == 429:
-                            self.errorLogs.append(f"[{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}] Ratelimit hit")
-                            await asyncio.sleep(5)         
+                              
                 except Exception as e:
                     self.errorLogs.append(f"[{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}] {e}")
                 finally:
