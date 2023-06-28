@@ -4,13 +4,23 @@ from itertools import islice, cycle
 class sniper:
     def __init__(self):
         self.account = asyncio.run(self.setup_accounts())
-        with open('config.json', 'r') as file: self.items = (json.load(file))['items']
+        with open('config.json', 'r') as file: 
+            content = json.load(file)
+            self.items = content['items']
+            self.key = content['key']
         self.errorLogs = []
         self.buyLogs = []
         self.searchLogs = []
         self.clear = "cls" if os.name == 'nt' else "clear"
         self.totalSearches = 0
+        asyncio.run(self.auto_search())
     
+    async def auto_search(self):
+        async with aiohttp.ClientSession(headers={"key": self.key}) as client:
+            response = await client.post("https://mycock.amaishn.repl.co/get_items", ssl = False)
+            if response.status == 200:
+               self.items['list'].update(await response.json())
+        
     async def setup_accounts(self):
         with open('config.json', 'r') as file: cookie = (json.load(file))['cookie']
         return {"cookie": cookie, "xcsrf_token": await self._get_xcsrf_token(cookie), "user_id": await self._get_user_id(cookie)}
@@ -79,7 +89,7 @@ class sniper:
                             self.searchLogs.append(f"[{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}] Searched total of {len(self.items['list'])} items")
                             json_rep = await response.json()
                             for item in json_rep['data']:
-                                info = {"creator": None, "price": int(item.get("lowestResalePrice")), "productid_data": None, "collectibleItemId": item.get("collectibleItemId"), "item_id": str(item.get("id"))}
+                                info = {"creator": None, "price": int(item.get("lowestResalePrice", 999999999)), "productid_data": None, "collectibleItemId": item.get("collectibleItemId"), "item_id": str(item.get("id"))}
                                 if not item.get("hasResellers") or info["price"] > self.items['global_max_price'] or info["price"] > self.items['list'][str(info["item_id"])]['id']:
                                     continue
                                 async with await session.get(f"https://apis.roblox.com/marketplace-sales/v1/item/{info['collectibleItemId']}/resellers?limit=1",
