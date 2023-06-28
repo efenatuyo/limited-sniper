@@ -1,0 +1,12 @@
+{
+    "cookie": "",
+    "items": {
+        "global_max_price": 30,
+        "list": {
+            "13345169760": {
+                "id": 13345169760,
+                "max_price": 10
+            }
+        }
+    }
+}
