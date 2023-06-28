@@ -90,7 +90,7 @@ class sniper:
                             json_rep = await response.json()
                             for item in json_rep['data']:
                                 info = {"creator": None, "price": int(item.get("lowestResalePrice", 999999999)), "productid_data": None, "collectibleItemId": item.get("collectibleItemId"), "item_id": str(item.get("id"))}
-                                if not item.get("hasResellers") or info["price"] > self.items['global_max_price'] or info["price"] > self.items['list'][str(info["item_id"])]['id']:
+                                if not item.get("hasResellers") or info["price"] > self.items['global_max_price'] or info["price"] > self.items['list'][str(info["item_id"])]['max_price']:
                                     continue
                                 async with await session.get(f"https://apis.roblox.com/marketplace-sales/v1/item/{info['collectibleItemId']}/resellers?limit=1",
                                                             headers={"x-csrf-token": self.account['xcsrf_token'], 'Accept': "application/json", 'Accept-Encoding': 'gzip'},
