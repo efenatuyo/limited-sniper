@@ -96,7 +96,6 @@ class sniper:
                                                             headers={"x-csrf-token": self.account['xcsrf_token'], 'Accept': "application/json", 'Accept-Encoding': 'gzip'},
                                                             cookies={".ROBLOSECURITY": self.account['cookie']}, ssl=False) as resell:
                                     resell_user = (await resell.json())["data"][0]
-                                    info['price'] = resell_user['price']
                                     info["productid_data"] = resell_user["collectibleProductId"]
                                     info["creator"] = resell_user["seller"]["sellerId"]
                                     info["collectibleItemInstanceId"] = resell_user["collectibleItemInstanceId"]
