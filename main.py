@@ -164,6 +164,7 @@ class sniper:
                                     info["productid_data"] = resell_user["collectibleProductId"]
                                     info["creator"] = resell_user["seller"]["sellerId"]
                                     info["collectibleItemInstanceId"] = resell_user["collectibleItemInstanceId"]
+                                if info['price'] > self.items['global_max_price']: return True
                                 await self.buy_item(session, info)
                         elif response.status == 429:
                             self.errorLogs.append(f"[{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}] Ratelimit hit")
