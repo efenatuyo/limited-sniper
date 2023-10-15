@@ -99,9 +99,9 @@ class sniper:
                 if not info["price"]:
                     info["price"] = 0
                 if not item.get("IsForSale"):
-                        self.items.remove(info['item_id'])
+                        del self.items[info['item_id']]
                         return True
-                if info['price'] > self.items['global_max_price']: return True
+                if info['price'] > self.items['global_max_price'] or info['price'] > self.items[item_id]["max_price"]: return True
                 async with await session.get(f"https://apis.roblox.com/marketplace-sales/v1/item/{info['collectibleItemId']}/resellers?limit=1",
                                                             headers={'Accept': "application/json", 'Accept-Encoding': 'gzip'}, ssl=False) as resell:
                     resell_user = (await resell.json())["data"][0]
@@ -125,8 +125,7 @@ class sniper:
                 tasks = []
                 for item_id in self.items['list']:
                     tasks.append(self.fetch_item_details_v2(session, item_id))
-                results = await asyncio.gather(*tasks)
-                a = len(results)
+                if tasks: a = len(await asyncio.gather(*tasks))
               except Exception as e:
                   self.errorLogs.append(f"[{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}] V2 {e}")
               finally:
@@ -154,7 +153,7 @@ class sniper:
                             json_rep = await response.json()
                             for item in json_rep['data']:
                                 info = {"creator": None, "price": int(item.get("lowestResalePrice", 999999999)), "productid_data": None, "collectibleItemId": item.get("collectibleItemId"), "item_id": str(item.get("id"))}
-                                if not item.get("hasResellers") or info["price"] > self.items['global_max_price']:
+                                if not item.get("hasResellers") or info["price"] > self.items['global_max_price'] or info['price'] > self.items[info["item_id"]]["max_price"]:
                                     continue
                                 async with await session.get(f"https://apis.roblox.com/marketplace-sales/v1/item/{info['collectibleItemId']}/resellers?limit=1",
                                                             headers={"x-csrf-token": self.account['xcsrf_token'], 'Accept': "application/json", 'Accept-Encoding': 'gzip'},
